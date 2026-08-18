@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHP Learning Quiz</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --purple: #6d28d9;
+      --purple-dark: #4c1d95;
+      --purple-soft: #f3e8ff;
+      --line: #e5e7eb;
+      --card: #ffffff;
+      --green: #15803d;
+      --green-soft: #dcfce7;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --yellow-soft: #fef3c7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #f6f3ff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    .hero {
+      padding: 52px 20px 84px;
+      color: white;
+      background: radial-gradient(circle at top right, #a78bfa 0, transparent 35%),
+                  linear-gradient(135deg, #312e81, #6d28d9 60%, #9333ea);
+    }
+
+    .hero-inner, main { max-width: 980px; margin: 0 auto; }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -0.04em; }
+    .hero p { max-width: 650px; margin: 0; color: #ede9fe; font-size: 1.08rem; }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .stat {
+      padding: 8px 13px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      font-size: .92rem;
+    }
+
+    main { margin-top: -38px; padding: 0 16px 55px; }
+
+    .session-picker, .toolbar, .question, .results {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: 0 12px 35px rgba(49, 46, 129, .08);
+    }
+
+    .session-picker { padding: 24px; }
+    .picker-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+    .picker-heading h2 { margin: 3px 0 2px; font-size: 1.45rem; }
+    .picker-heading p { margin: 0; color: var(--muted); }
+    .eyebrow { color: var(--purple); font-size: .76rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+    .session-count { padding: 7px 10px; border-radius: 8px; color: var(--purple-dark); background: var(--purple-soft); font-size: .82rem; font-weight: 800; white-space: nowrap; }
+    .session-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .session-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 16px; color: var(--ink); background: #fff; border: 1px solid var(--line); text-align: left; }
+    .session-card:hover { color: var(--purple-dark); background: #faf5ff; border-color: #c4b5fd; }
+    .session-card strong, .session-card small { display: block; }
+    .session-card small { margin-top: 3px; color: var(--muted); font-size: .82rem; font-weight: 400; line-height: 1.35; }
+    .session-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 11px; background: var(--purple-soft); font-size: 1.3rem; }
+    .arrow { color: var(--purple); font-size: 1.3rem; }
+    .quiz-area[hidden] { display: none; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+    }
+
+    .progress-wrap { flex: 1; }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--muted); font-size: .9rem; }
+    .progress { height: 9px; overflow: hidden; border-radius: 99px; background: #ede9fe; }
+    .progress-bar { width: 0; height: 100%; border-radius: inherit; background: var(--purple); transition: width .25s ease; }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 17px;
+      color: white;
+      background: var(--purple);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); background: var(--purple-dark); }
+    button:focus-visible, label:focus-within { outline: 3px solid #c4b5fd; outline-offset: 2px; }
+    button.secondary { color: var(--purple-dark); background: var(--purple-soft); }
+    button.secondary:hover { background: #e9d5ff; }
+
+    .level-heading { display: flex; align-items: center; gap: 12px; margin: 30px 0 12px; }
+    .level-heading h2 { margin: 0; font-size: 1.3rem; }
+    .level-heading p { margin: 0; color: var(--muted); font-size: .92rem; }
+    .level-dot { width: 12px; height: 12px; border-radius: 50%; background: #22c55e; }
+    .medium .level-dot { background: #f59e0b; }
+    .hard .level-dot { background: #ef4444; }
+
+    .question { padding: 22px; margin-bottom: 15px; }
+    .question-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .question-number { color: var(--purple); font-size: .82rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .badge { padding: 4px 9px; border-radius: 999px; color: #166534; background: var(--green-soft); font-size: .76rem; font-weight: 800; }
+    .medium .badge { color: #92400e; background: var(--yellow-soft); }
+    .hard .badge { color: #991b1b; background: var(--red-soft); }
+    .question h3 { margin: 7px 0 14px; font-size: 1.08rem; }
+
+    pre {
+      margin: 12px 0 16px;
+      padding: 15px;
+      overflow-x: auto;
+      border-radius: 12px;
+      color: #e9d5ff;
+      background: #1e1b4b;
+      font: .9rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .options { display: grid; gap: 9px; }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: border .15s ease, background .15s ease;
+    }
+
+    .option:hover { border-color: #a78bfa; background: #faf5ff; }
+    .option input { margin-top: 4px; accent-color: var(--purple); }
+    .option.correct { border-color: #86efac; background: var(--green-soft); }
+    .option.incorrect { border-color: #fca5a5; background: var(--red-soft); }
+    .explanation { display: none; margin-top: 14px; padding: 13px 15px; border-left: 4px solid #f59e0b; border-radius: 8px; background: #fffbeb; color: #713f12; }
+    .explanation.show { display: block; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .actions button { flex: 1 1 180px; }
+
+    .results { display: none; margin-top: 22px; padding: 28px; text-align: center; }
+    .results.show { display: block; }
+    .score { margin: 4px 0; color: var(--purple); font-size: 3rem; font-weight: 900; }
+    .results p { margin: 4px auto 20px; max-width: 600px; color: var(--muted); }
+    .tip { margin-top: 20px; padding: 13px; border-radius: 10px; background: var(--purple-soft); color: var(--purple-dark); font-size: .94rem; }
+
+    @media (max-width: 620px) {
+      .hero { padding-top: 35px; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .question-head { flex-direction: column; gap: 7px; }
+      main { padding-inline: 10px; }
+      .session-grid { grid-template-columns: 1fr; }
+      .picker-heading { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>PHP Learning Quiz</h1>
+      <p>Learn PHP step by step. Start with syntax and variables, then move through arrays, functions, security, object-oriented PHP, and production deployment.</p>
+      <div class="stats" aria-label="Quiz details">
+        <span class="stat">5 sessions</span>
+        <span class="stat">15 questions each</span>
+        <span class="stat">Instant explanations</span>
+        <span class="stat">No timer</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="session-picker" id="sessionPicker">
+      <div class="picker-heading">
+        <div>
+          <div class="eyebrow">Choose your learning mode</div>
+          <h2>Select a PHP topic</h2>
+          <p>Each session contains 15 questions and moves from easy to hard.</p>
+        </div>
+        <div class="session-count">5 topics × 15 questions</div>
+      </div>
+      <div class="session-grid">
+        <button class="session-card" type="button" data-topic="basics">
+          <span class="session-icon">🧱</span><span><strong>PHP Basics</strong><small>Syntax, variables, operators, and control flow</small></span><span class="arrow">→</span>
+        </button>
+        <button class="session-card" type="button" data-topic="arrays">
+          <span class="session-icon">🗃️</span><span><strong>Arrays & Functions</strong><small>Arrays, loops, strings, and reusable code</small></span><span class="arrow">→</span>
+        </button>
+        <button class="session-card" type="button" data-topic="oop">
+          <span class="session-icon">🧩</span><span><strong>Object-Oriented PHP</strong><small>Classes, objects, inheritance, and interfaces</small></span><span class="arrow">→</span>
+        </button>
+        <button class="session-card" type="button" data-topic="database">
+          <span class="session-icon">🛡️</span><span><strong>Database & Security</strong><small>PDO, validation, sessions, and safe coding</small></span><span class="arrow">→</span>
+        </button>
+        <button class="session-card production-card" type="button" data-topic="production">
+          <span class="session-icon">🚀</span><span><strong>Production & Placement</strong><small>Validation, security, deployment, and database scenarios</small></span><span class="arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="quiz-area" id="quizArea" hidden>
+    <section class="toolbar" aria-label="Quiz progress">
+      <div class="progress-wrap">
+        <div class="progress-label"><span><strong id="currentSession">PHP Basics</strong> · <span id="progressText">0 of 15 answered</span></span><span id="percentText">0%</span></div>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+      <button class="secondary" type="button" id="clearButton">Clear answers</button>
+      <button class="secondary" type="button" id="changeSessionButton">Change topic</button>
+    </section>
+
+    <form id="quizForm"></form>
+
+    <div class="actions">
+      <button type="button" id="submitButton">Check my answers</button>
+      <button class="secondary" type="button" id="resetButton">Start again</button>
+    </div>
+
+    <section class="results" id="results" aria-live="polite">
+      <div>YOUR SCORE</div>
+      <div class="score" id="score">0 / 15</div>
+      <p id="resultMessage"></p>
+      <button type="button" id="reviewButton">Review explanations</button>
+      <div class="tip">Study tip: If you miss a question, read its explanation, write the code yourself, and run it in a PHP environment.</div>
+    </section>
+    </section>
+  </main>
+
+  <script>
+    const starterQuestions = [
+      {
+        level: "easy", title: "How does a PHP script usually begin?", code: "<?php\necho 'Hello';", options: ["<?php", "<php>", "<script php>", "<?php>"] , answer: 0,
+        explanation: "PHP code begins with the opening tag <?php. The closing tag ?> is optional when the file contains only PHP code."
+      },
+      {
+        level: "easy", title: "Which is a valid PHP variable?", options: ["name = 'Ana';", "$name = 'Ana';", "var $name = 'Ana';", "#name = 'Ana';"], answer: 1,
+        explanation: "PHP variables start with a dollar sign ($), followed by a letter or underscore."
+      },
+      {
+        level: "easy", title: "What does echo do?", options: ["Reads a file", "Creates a class", "Outputs text or a value", "Stops the program"], answer: 2,
+        explanation: "echo sends one or more strings or values to the output, usually the web page."
+      },
+      {
+        level: "easy", title: "Which operator joins two strings?", code: "$first = 'Ada';\n$last = 'Lovelace';\necho $first . ' ' . $last;", options: ["+", ".", "&", "::"], answer: 1,
+        explanation: "The dot (.) is PHP's string-concatenation operator. The plus sign (+) is used for arithmetic addition."
+      },
+      {
+        level: "easy", title: "What is the output?", code: "$age = 20;\necho $age + 5;", options: ["20", "25", "205", "Error"], answer: 1,
+        explanation: "The + operator adds numbers, so 20 + 5 produces 25."
+      },
+      {
+        level: "easy", title: "Which operator compares both value and type?", options: ["=", "==", "===", "!="], answer: 2,
+        explanation: "=== is strict comparison. For example, 5 === '5' is false because one value is an integer and the other is a string."
+      },
+      {
+        level: "easy", title: "Which keyword creates a function?", options: ["function", "method", "def", "procedure"], answer: 0,
+        explanation: "A PHP function is declared with the function keyword, for example: function greet() { echo 'Hi'; }."
+      },
+      {
+        level: "easy", title: "What is the first index of a normal PHP indexed array?", code: "$colors = ['red', 'blue', 'green'];\necho $colors[?];", options: ["0", "1", "-1", "The array has no index"], answer: 0,
+        explanation: "Indexed PHP arrays start at index 0, so red is $colors[0]."
+      },
+      {
+        level: "medium", title: "What does count($items) return?", code: "$items = ['pen', 'book', 'bag'];\necho count($items);", options: ["2", "3", "4", "The last index"], answer: 1,
+        explanation: "count() returns the number of elements. This array contains three items."
+      },
+      {
+        level: "medium", title: "What is printed?", code: "$user = ['name' => 'Maya', 'role' => 'Admin'];\necho $user['role'];", options: ["name", "Maya", "role", "Admin"], answer: 3,
+        explanation: "Associative arrays use named keys. The key role stores the value Admin."
+      },
+      {
+        level: "medium", title: "What does foreach do?", options: ["Repeats over each item in an array", "Defines a constant", "Connects to a database", "Converts PHP to HTML"], answer: 0,
+        explanation: "foreach is designed to loop through each value in an array or other iterable object."
+      },
+      {
+        level: "medium", title: "What is the result?", code: "$name = null;\necho isset($name) ? 'yes' : 'no';", options: ["yes", "no", "null", "Error"], answer: 1,
+        explanation: "isset() returns false for a variable that is not set or whose value is null."
+      },
+      {
+        level: "medium", title: "Which function safely checks whether a value exists in an array?", options: ["array_has()", "contains()", "in_array()", "has_value()"], answer: 2,
+        explanation: "in_array($value, $array) returns true when the value is found in the array."
+      },
+      {
+        level: "medium", title: "What default value is used here?", code: "function greet($name = 'Guest') {\n    return 'Hello ' . $name;\n}\necho greet();", options: ["Hello", "Hello Guest", "Guest", "Error"], answer: 1,
+        explanation: "Because greet() is called without an argument, the default parameter Guest is used."
+      },
+      {
+        level: "hard", title: "Which practice helps prevent SQL injection?", options: ["Putting user input directly in SQL", "Using prepared statements", "Using bigger database tables", "Hiding the submit button"], answer: 1,
+        explanation: "Prepared statements separate SQL code from user data. With PDO, use prepare() and execute() with bound values."
+      },
+      {
+        level: "hard", title: "What does the null-coalescing operator do?", code: "$displayName = $_GET['name'] ?? 'Guest';", options: ["Always returns null", "Uses name if it exists; otherwise uses Guest", "Converts Guest to an integer", "Checks whether a class is final"], answer: 1,
+        explanation: "?? returns its left side when it exists and is not null; otherwise it returns the right side."
+      },
+      {
+        level: "hard", title: "Which visibility allows access only inside the declaring class?", options: ["public", "protected", "private", "internal"], answer: 2,
+        explanation: "A private property or method can be accessed only from inside the class that declares it."
+      },
+      {
+        level: "hard", title: "Which block handles an exception after try?", code: "try {\n    riskyOperation();\n} catch (Exception $error) {\n    echo 'Something went wrong';\n}", options: ["handle", "rescue", "catch", "except"], answer: 2,
+        explanation: "PHP uses catch after try to receive and handle an exception. A finally block can run afterward whether or not an exception occurs."
+      }
+    ];
+
+    const topicData = {
+      basics: starterQuestions.slice(0, 15),
+      arrays: [
+        { level: "easy", title: "How do you create an indexed array?", code: "$fruits = ['apple', 'banana', 'mango'];", options: ["Using []", "Using ()", "Using <> ", "Using array[] only"], answer: 0, explanation: "Square brackets create arrays in modern PHP. The array() syntax also works." },
+        { level: "easy", title: "What is printed?", code: "$numbers = [10, 20, 30];\necho $numbers[1];", options: ["10", "20", "30", "1"], answer: 1, explanation: "The second item has index 1 because PHP array indexes begin at 0." },
+        { level: "easy", title: "Which function adds an item to the end of an array?", options: ["array_add()", "append()", "array_push()", "push_array()"], answer: 2, explanation: "array_push($array, $value) adds one or more values to the end of an array." },
+        { level: "easy", title: "Which loop is commonly used to visit every array value?", options: ["foreach", "switch", "try", "declare"], answer: 0, explanation: "foreach is made for iterating through arrays and other iterable values." },
+        { level: "easy", title: "What does strlen('PHP') return?", options: ["2", "3", "4", "PHP"], answer: 1, explanation: "strlen() returns the number of characters in a string. PHP has three characters." },
+        { level: "medium", title: "What is the output?", code: "$names = ['Ava', 'Ben'];\nforeach ($names as $name) {\n    echo $name . ' ';\n}", options: ["Ava Ben ", "names", "0 1", "Error"], answer: 0, explanation: "foreach assigns each array value to $name in turn, so both names are printed." },
+        { level: "medium", title: "How do you access the value of the 'email' key?", code: "$account = ['email' => 'a@example.com'];", options: ["$account.email", "$account['email']", "$account(email)", "$account->email"], answer: 1, explanation: "Associative array values are accessed with square brackets and the key name." },
+        { level: "medium", title: "Which function filters an array using a callback?", options: ["array_filter()", "array_where()", "filter_values()", "select_array()"], answer: 0, explanation: "array_filter() returns the values for which its callback returns true." },
+        { level: "medium", title: "What does explode(',', 'a,b,c') return?", options: ["The string 'a,b,c'", "An array with a, b, and c", "The number 3", "A boolean"], answer: 1, explanation: "explode() splits a string into an array using the given separator." },
+        { level: "medium", title: "What does implode('-', ['2026', '08', '17']) return?", options: ["2026-08-17", "20260817", "['2026-08-17']", "17-08-2026"], answer: 0, explanation: "implode() joins array values into one string with the separator between them." },
+        { level: "hard", title: "What does array_map() do?", code: "$numbers = [1, 2, 3];\n$result = array_map(fn($n) => $n * 2, $numbers);", options: ["Deletes the array", "Doubles each value into a new array", "Sorts the values", "Returns only value 2"], answer: 1, explanation: "array_map() applies a callback to every value and returns a new array of results." },
+        { level: "hard", title: "What does the ... parameter syntax allow?", code: "function total(int ...$numbers) {\n    return array_sum($numbers);\n}", options: ["Only one argument", "A variable number of arguments", "A required class", "A string spread into characters"], answer: 1, explanation: "The variadic syntax collects any number of arguments into an array." },
+        { level: "hard", title: "Which declaration gives a function an integer return type?", options: ["function count(): int", "function int count()", "int function count()", "function count() returns int"], answer: 0, explanation: "PHP return types are written after the parameter list, preceded by a colon." },
+        { level: "hard", title: "What does array_reduce() produce?", options: ["A single accumulated value", "A random array", "Only the first value", "A database result"], answer: 0, explanation: "array_reduce() applies a callback to reduce an array to one accumulated result." },
+        { level: "hard", title: "Which comparison checks both array keys and values with matching order and types?", options: ["==", "===", "=", "same_array()"], answer: 1, explanation: "For arrays, === requires the same key-value pairs in the same order and with the same types." }
+      ],
+      oop: [
+        { level: "easy", title: "Which keyword defines a class?", options: ["object", "class", "struct", "blueprint"], answer: 1, explanation: "A PHP class is declared with the class keyword." },
+        { level: "easy", title: "How do you create an object from a class?", code: "class User {}\n$user = new User();", options: ["create User()", "new User()", "object User()", "User::create() only"], answer: 1, explanation: "The new keyword creates an object instance from a class." },
+        { level: "easy", title: "Which method runs automatically when an object is created?", options: ["__start()", "__construct()", "constructor()", "__newObject()"], answer: 1, explanation: "__construct() is PHP's constructor method and runs when new creates an object." },
+        { level: "easy", title: "What does $this refer to inside a class?", options: ["The current object", "The parent class only", "The current file", "The database"], answer: 0, explanation: "$this refers to the current object instance inside a non-static method." },
+        { level: "easy", title: "Which visibility allows access from anywhere?", options: ["private", "protected", "public", "hidden"], answer: 2, explanation: "public members can be accessed from inside the class, child classes, and outside code." },
+        { level: "medium", title: "How do you call a method on an object?", code: "$user = new User();\n$user->login();", options: ["$user.login()", "$user->login()", "User::login() always", "$user::login()"], answer: 1, explanation: "The -> operator accesses instance properties and methods." },
+        { level: "medium", title: "Which keyword allows a class to inherit another class?", options: ["inherits", "extends", "uses", "parent"], answer: 1, explanation: "class Admin extends User means Admin inherits accessible behavior from User." },
+        { level: "medium", title: "Which keyword lets a class fulfill an interface?", options: ["implements", "inherits", "contracts", "with"], answer: 0, explanation: "A class uses implements followed by an interface name." },
+        { level: "medium", title: "What is a static method called with?", code: "class MathTool {\n    public static function add() {}\n}\nMathTool::add();", options: ["->", "::", "=>", ".."], answer: 1, explanation: "The scope-resolution operator :: calls static methods and accesses class constants." },
+        { level: "medium", title: "What does protected allow?", options: ["Access only in the same method", "Access in the class and its child classes", "Access from every file", "No access at all"], answer: 1, explanation: "protected members are available in the declaring class and classes that inherit from it." },
+        { level: "hard", title: "What must a non-abstract class do when implementing an interface?", options: ["Delete the interface", "Implement all required methods", "Make every method static", "Use only private methods"], answer: 1, explanation: "A concrete class must provide implementations for all interface methods, with compatible signatures." },
+        { level: "hard", title: "What is an abstract class?", options: ["A class that cannot be instantiated directly", "A class with no methods", "A class containing only static values", "A hidden class"], answer: 0, explanation: "An abstract class can provide shared behavior but cannot be instantiated directly." },
+        { level: "hard", title: "What does a trait provide?", options: ["Reusable methods for classes", "A database table", "A replacement for namespaces", "Only private variables"], answer: 0, explanation: "Traits let unrelated classes reuse a group of methods or properties with the use keyword." },
+        { level: "hard", title: "Which feature prevents a class from being extended?", options: ["sealed class", "final class", "closed class", "static class"], answer: 1, explanation: "A final class cannot be extended. A final method cannot be overridden." },
+        { level: "hard", title: "What is a namespace used for?", options: ["Avoiding name collisions between classes and functions", "Connecting to a database", "Making a method private", "Rendering HTML faster"], answer: 0, explanation: "Namespaces organize related code and allow different libraries to use the same class name safely." }
+      ],
+      database: [
+        { level: "easy", title: "What is a database used for?", options: ["Storing and organizing data", "Styling a web page", "Compiling CSS", "Drawing icons"], answer: 0, explanation: "Databases store structured information so applications can save, find, and update it." },
+        { level: "easy", title: "Which PHP extension is commonly used for MySQL with modern PHP?", options: ["PDO", "HTML", "CSS", "GD only"], answer: 0, explanation: "PDO provides a consistent database interface and supports prepared statements." },
+        { level: "easy", title: "What does SQL SELECT do?", options: ["Reads data", "Deletes a table", "Changes a password", "Creates a PHP object"], answer: 0, explanation: "SELECT queries retrieve rows from one or more database tables." },
+        { level: "easy", title: "What does a primary key identify?", options: ["A unique row", "A CSS rule", "A PHP variable", "A database password"], answer: 0, explanation: "A primary key uniquely identifies each row in a table." },
+        { level: "easy", title: "Which function starts a PHP session?", options: ["start_session()", "session_start()", "begin_session()", "session_open()"], answer: 1, explanation: "session_start() creates a new session or resumes an existing one." },
+        { level: "medium", title: "What is the safest way to insert user input into a SQL query?", options: ["String concatenation", "Prepared statements", "Making the input uppercase", "Removing spaces only"], answer: 1, explanation: "Prepared statements keep user data separate from SQL instructions and help prevent injection." },
+        { level: "medium", title: "What does htmlspecialchars() help prevent?", options: ["Cross-site scripting when outputting HTML", "Slow database queries", "A missing PHP tag", "A full hard drive"], answer: 0, explanation: "It converts special HTML characters so untrusted text is displayed rather than interpreted as markup." },
+        { level: "medium", title: "Which HTTP method is commonly used to send form data that changes server state?", options: ["GET", "POST", "LINK", "STYLE"], answer: 1, explanation: "POST sends data in the request body and is commonly used for form submissions that create or update data." },
+        { level: "medium", title: "What does password_hash() create?", options: ["A reversible password", "A secure password hash", "A database table", "A session cookie only"], answer: 1, explanation: "password_hash() creates a one-way hash designed for storing passwords securely." },
+        { level: "medium", title: "Which function checks a password against a hash?", options: ["password_check()", "password_verify()", "hash_compare()", "verify_hash()"], answer: 1, explanation: "password_verify($password, $hash) checks a plain password against a password_hash() result." },
+        { level: "hard", title: "What does PDO::ATTR_ERRMODE with ERRMODE_EXCEPTION do?", options: ["Turns errors into exceptions", "Hides all errors", "Deletes errors", "Disables PDO"], answer: 0, explanation: "ERRMODE_EXCEPTION makes database errors throw PDOException, which can be handled with try/catch." },
+        { level: "hard", title: "Why should a CSRF token be used in a state-changing form?", options: ["To verify the request came from the user's form", "To make CSS faster", "To encrypt the database", "To create a PHP class"], answer: 0, explanation: "A CSRF token helps the server reject forged requests made from another site." },
+        { level: "hard", title: "What does a database transaction allow?", options: ["Several operations to succeed or roll back as one unit", "Only SELECT queries", "A faster CSS file", "A new user session"], answer: 0, explanation: "Transactions support all-or-nothing changes through beginTransaction(), commit(), and rollBack()." },
+        { level: "hard", title: "Which principle says user input should be checked on the server even if browser validation exists?", options: ["Server-side validation", "Client-only trust", "CSS inheritance", "Lazy loading"], answer: 0, explanation: "Client-side checks improve user experience, but server-side validation is required because clients can be bypassed." },
+        { level: "hard", title: "Why should database errors avoid showing raw details to users?", options: ["They can reveal sensitive system information", "They make HTML invalid", "They stop PHP variables working", "They always delete the database"], answer: 0, explanation: "Detailed database errors can expose table names, queries, or credentials. Log them securely and show users a helpful generic message." }
+      ],
+      production: [
+        { level: "easy", title: "Where should important production secrets such as database passwords be stored?", options: ["In a public Git repository", "In environment variables or a secret manager", "Inside the HTML form", "In a CSS file"], answer: 1, explanation: "Keep secrets outside source code and outside version control. Read them from environment variables or a managed secret store." },
+        { level: "easy", title: "Why is server-side validation required?", options: ["Users can bypass browser-side validation", "It makes CSS load faster", "It replaces database indexes", "It is only needed for images"], answer: 0, explanation: "Client-side validation improves user experience, but an attacker can send requests without using your form. The server must validate every request." },
+        { level: "easy", title: "Which rule is best for validating an integer ID received from a request?", options: ["Trust any non-empty string", "Use filter_input() or strict integer validation", "Convert it to HTML", "Only check its color"], answer: 1, explanation: "Validate the expected type and range on the server. For request data, filter_input() with FILTER_VALIDATE_INT is a useful option." },
+        { level: "easy", title: "What should a production PHP application use for browser-to-server traffic?", options: ["HTTP only", "HTTPS/TLS", "FTP in the browser", "A hidden input"], answer: 1, explanation: "HTTPS encrypts data in transit and helps protect credentials, sessions, and user information from interception." },
+        { level: "easy", title: "Which command installs Composer packages without development dependencies?", options: ["composer install --no-dev", "composer remove --all", "php install production", "composer debug"], answer: 0, explanation: "composer install --no-dev installs packages needed in production while leaving out development-only packages." },
+        { level: "medium", title: "What is the safest way to build a SQL query using user input?", code: "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email');\n$stmt->execute(['email' => $email]);", options: ["Prepared statements with bound values", "String concatenation", "Removing spaces from input", "Base64 encoding the input"], answer: 0, explanation: "Prepared statements separate SQL instructions from user data. Encoding or filtering text alone does not prevent SQL injection." },
+        { level: "medium", title: "Which output is safest when displaying a user-provided name in HTML?", code: "echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');", options: ["Raw echo of $name", "htmlspecialchars() with the correct encoding", "eval($name)", "A SQL query"], answer: 1, explanation: "Escaping output for its context helps prevent XSS. For HTML text and attributes, htmlspecialchars() with UTF-8 is a common choice." },
+        { level: "medium", title: "What is the purpose of a CSRF token on a POST form?", options: ["To prove the request came from the application's form", "To hash a database password", "To compress the page", "To replace HTTPS"], answer: 0, explanation: "A CSRF token gives the server a way to reject forged state-changing requests made from another site. It does not replace HTTPS." },
+        { level: "medium", title: "Which configuration is appropriate for production error handling?", options: ["display_errors=On for everyone", "Show generic errors to users and log detailed errors privately", "Ignore every error", "Print database passwords for debugging"], answer: 1, explanation: "Users should receive a safe generic message. Detailed errors belong in protected logs and should be monitored." },
+        { level: "medium", title: "What is a database migration used for during deployment?", options: ["Versioning and applying schema changes", "Compressing images", "Encrypting CSS", "Starting a browser session"], answer: 0, explanation: "Migrations record repeatable database schema changes so environments can be updated consistently." },
+        { level: "hard", title: "A login system stores plain-text passwords. What is the correct fix?", options: ["Use password_hash() and verify with password_verify()", "Encrypt passwords with a fixed key and echo them", "Store them in cookies", "Use MD5 without a salt"], answer: 0, explanation: "Passwords should be stored with password_hash() and checked with password_verify(). Never store or log plain-text passwords." },
+        { level: "hard", title: "What is the principle of least privilege for a production database user?", options: ["Give the application every database permission", "Give only the permissions the application needs", "Use the root user everywhere", "Disable all database authentication"], answer: 1, explanation: "A restricted database account limits the damage if application credentials are exposed or the application is compromised." },
+        { level: "hard", title: "Which deployment sequence is generally safest for a backward-compatible PHP release?", options: ["Backup/check, install dependencies, run migrations, deploy code, verify health", "Delete the database, then upload files", "Edit production code manually without a backup", "Disable security checks permanently"], answer: 0, explanation: "A repeatable deployment should include checks, backups or recovery plans, dependency installation, compatible migrations, deployment, and verification." },
+        { level: "hard", title: "What should a file-upload endpoint validate?", options: ["Only the original filename", "Size, MIME/content type, extension, storage name, and authorization", "Only whether the file is colorful", "Nothing if the form has accept=",], answer: 1, explanation: "Validate uploads on the server, limit size and allowed types, generate a safe storage name, store outside the public web root when possible, and check authorization." },
+        { level: "hard", title: "What is a health check useful for after deployment?", options: ["Confirming the application and required dependencies are responding", "Showing stack traces to visitors", "Changing user passwords", "Replacing automated tests"], answer: 0, explanation: "A health check can verify that the application, database connection, and essential services are available after a release." }
+      ]
+    };
+
+    let questions = [];
+    let currentTopic = null;
+
+    const form = document.getElementById('quizForm');
+    const levelNames = { easy: ['Easy', 'Start with the fundamentals'], medium: ['Medium', 'Build practical PHP skills'], hard: ['Hard', 'Apply concepts to real code'] };
+    const topicNames = { basics: 'PHP Basics', arrays: 'Arrays & Functions', oop: 'Object-Oriented PHP', database: 'Database & Security', production: 'Production & Placement' };
+
+    function renderQuiz() {
+      form.innerHTML = '';
+      ['easy', 'medium', 'hard'].forEach(level => {
+        const heading = document.createElement('div');
+        heading.className = `level-heading ${level}`;
+        heading.innerHTML = `<span class="level-dot"></span><div><h2>${levelNames[level][0]}</h2><p>${levelNames[level][1]}</p></div>`;
+        form.appendChild(heading);
+
+        questions.forEach((question, index) => {
+          if (question.level !== level) return;
+          const card = document.createElement('article');
+          card.className = `question ${level}`;
+          card.id = `question-${index}`;
+
+          const head = document.createElement('div');
+          head.className = 'question-head';
+          head.innerHTML = `<div class="question-number">Question ${index + 1}</div><span class="badge">${levelNames[level][0]}</span>`;
+          card.appendChild(head);
+
+          const title = document.createElement('h3');
+          title.textContent = question.title;
+          card.appendChild(title);
+
+          if (question.code) {
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.textContent = question.code;
+            pre.appendChild(code);
+            card.appendChild(pre);
+          }
+
+          const options = document.createElement('div');
+          options.className = 'options';
+          options.setAttribute('role', 'radiogroup');
+          question.options.forEach((option, optionIndex) => {
+            const label = document.createElement('label');
+            label.className = 'option';
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `q${index}`;
+            input.value = optionIndex;
+            const text = document.createElement('span');
+            text.textContent = `${String.fromCharCode(65 + optionIndex)}) ${option}`;
+            label.append(input, text);
+            options.appendChild(label);
+          });
+          card.appendChild(options);
+
+          const explanation = document.createElement('div');
+          explanation.className = 'explanation';
+          explanation.innerHTML = `<strong>Why:</strong> ${question.explanation}`;
+          card.appendChild(explanation);
+          form.appendChild(card);
+        });
+      });
+    }
+
+    function selectTopic(topic) {
+      currentTopic = topic;
+      questions = topicData[topic];
+      document.getElementById('currentSession').textContent = topicNames[topic];
+      document.getElementById('sessionPicker').hidden = true;
+      document.getElementById('quizArea').hidden = false;
+      document.getElementById('results').classList.remove('show');
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgress() {
+      const answered = questions.filter((_, index) => form.querySelector(`input[name="q${index}"]:checked`)).length;
+      const percent = Math.round(answered / questions.length * 100);
+      document.getElementById('progressText').textContent = `${answered} of ${questions.length} answered`;
+      document.getElementById('percentText').textContent = `${percent}%`;
+      document.getElementById('progressBar').style.width = `${percent}%`;
+    }
+
+    function checkAnswers() {
+      let score = 0;
+      questions.forEach((question, index) => {
+        const selected = form.querySelector(`input[name="q${index}"]:checked`);
+        const card = document.getElementById(`question-${index}`);
+        const explanation = card.querySelector('.explanation');
+        card.querySelectorAll('.option').forEach((option, optionIndex) => {
+          option.classList.toggle('correct', optionIndex === question.answer);
+          option.classList.toggle('incorrect', Boolean(selected) && option.querySelector('input').checked && optionIndex !== question.answer);
+        });
+        if (selected && Number(selected.value) === question.answer) score++;
+        explanation.classList.add('show');
+      });
+
+      const results = document.getElementById('results');
+      document.getElementById('score').textContent = `${score} / ${questions.length}`;
+      document.getElementById('resultMessage').textContent = score === questions.length
+        ? 'Excellent! You have a strong foundation in PHP.'
+        : score >= 13
+          ? 'Great work! Review the highlighted explanations to strengthen your skills.'
+          : score >= 9
+            ? 'Good start. Practice the missed topics and try the quiz again.'
+            : 'Keep learning! Begin with the Easy section, then work upward again.';
+      results.classList.add('show');
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetQuiz() {
+      form.reset();
+      form.querySelectorAll('.option').forEach(option => option.classList.remove('correct', 'incorrect'));
+      form.querySelectorAll('.explanation').forEach(explanation => explanation.classList.remove('show'));
+      document.getElementById('results').classList.remove('show');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeTopic() {
+      resetQuiz();
+      document.getElementById('quizArea').hidden = true;
+      document.getElementById('sessionPicker').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    form.addEventListener('change', updateProgress);
+    document.querySelectorAll('.session-card').forEach(card => {
+      card.addEventListener('click', () => selectTopic(card.dataset.topic));
+    });
+    document.getElementById('submitButton').addEventListener('click', checkAnswers);
+    document.getElementById('resetButton').addEventListener('click', resetQuiz);
+    document.getElementById('clearButton').addEventListener('click', resetQuiz);
+    document.getElementById('changeSessionButton').addEventListener('click', changeTopic);
+    document.getElementById('reviewButton').addEventListener('click', () => document.getElementById('quizForm').scrollIntoView({ behavior: 'smooth' }));
+  </script>
+</body>
+</html>

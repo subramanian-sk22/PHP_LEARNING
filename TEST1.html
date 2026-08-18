@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP Basics & Syntax - Practice Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .timer-bar {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .quiz-container {
+            padding: 30px;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .question:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.3);
+        }
+        
+        .option label {
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-reset {
+            background: #6c757d;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result-message {
+            font-size: 1.3em;
+            margin: 20px 0;
+        }
+        
+        .correct {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+        
+        .incorrect {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+        
+        .explanation {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .explanation.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 PHP Basics & Syntax Test</h1>
+            <p>Phase 1: Variables, Operators, Constants & Type Juggling</p>
+            <p style="margin-top: 10px;">⏱️ Time: 15 Minutes | Questions: 20 | Marks: 20</p>
+        </div>
+        
+        <div class="timer-bar" id="timer">
+            Time Remaining: 15:00
+        </div>
+        
+        <div class="quiz-container">
+            <form id="quizForm">
+                <!-- Question 1 -->
+                <div class="question" id="q1">
+                    <span class="question-number">Question 1</span>
+                    <div class="question-text">
+                        <p>What will be the output of the following PHP code?</p>
+                        <div class="code-block"><?php<br>
+                        $x = 5;<br>
+                        echo $x++ + ++$x;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q1" value="a" id="q1a">
+                            <label for="q1a">A) 11</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" value="b" id="q1b">
+                            <label for="q1b">B) 12</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" value="c" id="q1c">
+                            <label for="q1c">C) 13</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" value="d" id="q1d">
+                            <label for="q1d">D) 10</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp1">
+                        <strong>Answer: B) 12</strong><br>
+                        $x++ returns 5, then $x becomes 6. ++$x increments to 7 and returns 7. So 5 + 7 = 12.
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question" id="q2">
+                    <span class="question-number">Question 2</span>
+                    <div class="question-text">
+                        <p>Which of the following is NOT a valid PHP variable name?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q2" value="a" id="q2a">
+                            <label for="q2a">A) $_myVar</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" value="b" id="q2b">
+                            <label for="q2b">B) $myVar1</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" value="c" id="q2c">
+                            <label for="q2c">C) $1myVar</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" value="d" id="q2d">
+                            <label for="q2d">D) $my_Var</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp2">
+                        <strong>Answer: C) $1myVar</strong><br>
+                        PHP variable names cannot start with a number. They must start with a letter or underscore.
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question" id="q3">
+                    <span class="question-number">Question 3</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        echo "5" + "10 apples";<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q3" value="a" id="q3a">
+                            <label for="q3a">A) 15</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" value="b" id="q3b">
+                            <label for="q3b">B) "510 apples"</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" value="c" id="q3c">
+                            <label for="q3c">C) 510</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" value="d" id="q3d">
+                            <label for="q3d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp3">
+                        <strong>Answer: A) 15</strong><br>
+                        PHP extracts the leading number "10" from "10 apples" and adds it to 5, giving 15. A warning is generated.
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question" id="q4">
+                    <span class="question-number">Question 4</span>
+                    <div class="question-text">
+                        <p>What does the '===' operator do in PHP?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q4" value="a" id="q4a">
+                            <label for="q4a">A) Assigns a value</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" value="b" id="q4b">
+                            <label for="q4b">B) Compares values only</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" value="c" id="q4c">
+                            <label for="q4c">C) Compares values and types</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" value="d" id="q4d">
+                            <label for="q4d">D) Checks if variable exists</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp4">
+                        <strong>Answer: C) Compares values and types</strong><br>
+                        === is the strict comparison operator that checks both value and data type. 1 === "1" would be false.
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="question" id="q5">
+                    <span class="question-number">Question 5</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $a = "Hello";<br>
+                        $b = "World";<br>
+                        echo $a . " " . $b;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q5" value="a" id="q5a">
+                            <label for="q5a">A) HelloWorld</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" value="b" id="q5b">
+                            <label for="q5b">B) Hello World</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" value="c" id="q5c">
+                            <label for="q5c">C) Hello + World</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" value="d" id="q5d">
+                            <label for="q5d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp5">
+                        <strong>Answer: B) Hello World</strong><br>
+                        The dot (.) operator concatenates strings. " " adds a space between them.
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="question" id="q6">
+                    <span class="question-number">Question 6</span>
+                    <div class="question-text">
+                        <p>Which of the following values is considered FALSY in PHP?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q6" value="a" id="q6a">
+                            <label for="q6a">A) "false"</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" value="b" id="q6b">
+                            <label for="q6b">B) -1</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" value="c" id="q6c">
+                            <label for="q6c">C) "0"</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q6" value="d" id="q6d">
+                            <label for="q6d">D) " "</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp6">
+                        <strong>Answer: C) "0"</strong><br>
+                        "0" (string zero) is falsy. "false" is a non-empty string (truthy). -1 is truthy. " " (space) is truthy.
+                    </div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="question" id="q7">
+                    <span class="question-number">Question 7</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        echo 10 / 4;<br>
+                        echo 10 % 4;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q7" value="a" id="q7a">
+                            <label for="q7a">A) 2.52</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" value="b" id="q7b">
+                            <label for="q7b">B) 22</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" value="c" id="q7c">
+                            <label for="q7c">C) 2.5 2</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q7" value="d" id="q7d">
+                            <label for="q7d">D) 2.502</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp7">
+                        <strong>Answer: A) 2.52</strong><br>
+                        10/4 = 2.5, 10%4 = 2 (remainder). Since there's no separator, output is "2.52".
+                    </div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="question" id="q8">
+                    <span class="question-number">Question 8</span>
+                    <div class="question-text">
+                        <p>How do you define a constant in PHP?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q8" value="a" id="q8a">
+                            <label for="q8a">A) $PI = 3.14;</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" value="b" id="q8b">
+                            <label for="q8b">B) define("PI", 3.14);</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" value="c" id="q8c">
+                            <label for="q8c">C) constant PI = 3.14;</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q8" value="d" id="q8d">
+                            <label for="q8d">D) var PI = 3.14;</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp8">
+                        <strong>Answer: B) define("PI", 3.14);</strong><br>
+                        Constants are defined using define() or const keyword. They don't use $ sign.
+                    </div>
+                </div>
+
+                <!-- Question 9 -->
+                <div class="question" id="q9">
+                    <span class="question-number">Question 9</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $x = 10;<br>
+                        $y = 0;<br>
+                        var_dump(empty($y));<br>
+                        var_dump(isset($x));<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q9" value="a" id="q9a">
+                            <label for="q9a">A) bool(true) bool(true)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" value="b" id="q9b">
+                            <label for="q9b">B) bool(false) bool(true)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" value="c" id="q9c">
+                            <label for="q9c">C) bool(true) bool(false)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q9" value="d" id="q9d">
+                            <label for="q9d">D) bool(false) bool(false)</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp9">
+                        <strong>Answer: A) bool(true) bool(true)</strong><br>
+                        $y = 0 is empty (falsy), so empty() returns true. $x = 10 is set and not null, so isset() returns true.
+                    </div>
+                </div>
+
+                <!-- Question 10 -->
+                <div class="question" id="q10">
+                    <span class="question-number">Question 10</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $a = true;<br>
+                        $b = false;<br>
+                        $result = $a and $b;<br>
+                        var_dump($result);<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q10" value="a" id="q10a">
+                            <label for="q10a">A) bool(true)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" value="b" id="q10b">
+                            <label for="q10b">B) bool(false)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" value="c" id="q10c">
+                            <label for="q10c">C) NULL</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q10" value="d" id="q10d">
+                            <label for="q10d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp10">
+                        <strong>Answer: A) bool(true)</strong><br>
+                        Due to operator precedence, $result = $a happens first (assigning true), then "and $b" is evaluated but doesn't change $result.
+                    </div>
+                </div>
+
+                <!-- Question 11 -->
+                <div class="question" id="q11">
+                    <span class="question-number">Question 11</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $str = "Hello";<br>
+                        echo $str[1];<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q11" value="a" id="q11a">
+                            <label for="q11a">A) H</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q11" value="b" id="q11b">
+                            <label for="q11b">B) e</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q11" value="c" id="q11c">
+                            <label for="q11c">C) l</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q11" value="d" id="q11d">
+                            <label for="q11d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp11">
+                        <strong>Answer: B) e</strong><br>
+                        String indexing starts at 0. $str[0] is 'H', $str[1] is 'e'.
+                    </div>
+                </div>
+
+                <!-- Question 12 -->
+                <div class="question" id="q12">
+                    <span class="question-number">Question 12</span>
+                    <div class="question-text">
+                        <p>Which function is used to check if a variable is set and not NULL?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q12" value="a" id="q12a">
+                            <label for="q12a">A) empty()</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q12" value="b" id="q12b">
+                            <label for="q12b">B) isset()</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q12" value="c" id="q12c">
+                            <label for="q12c">C) is_null()</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q12" value="d" id="q12d">
+                            <label for="q12d">D) defined()</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp12">
+                        <strong>Answer: B) isset()</strong><br>
+                        isset() returns true if the variable is set and is not NULL. empty() checks for falsy values.
+                    </div>
+                </div>
+
+                <!-- Question 13 -->
+                <div class="question" id="q13">
+                    <span class="question-number">Question 13</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        echo 1 == "1" ? "true" : "false";<br>
+                        echo 1 === "1" ? "true" : "false";<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q13" value="a" id="q13a">
+                            <label for="q13a">A) truetrue</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q13" value="b" id="q13b">
+                            <label for="q13b">B) truefalse</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q13" value="c" id="q13c">
+                            <label for="q13c">C) falsetrue</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q13" value="d" id="q13d">
+                            <label for="q13d">D) falsefalse</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp13">
+                        <strong>Answer: B) truefalse</strong><br>
+                        1 == "1" is true (loose comparison). 1 === "1" is false (different types: integer vs string).
+                    </div>
+                </div>
+
+                <!-- Question 14 -->
+                <div class="question" id="q14">
+                    <span class="question-number">Question 14</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $var = 12.7;<br>
+                        echo (int) $var;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q14" value="a" id="q14a">
+                            <label for="q14a">A) 12</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q14" value="b" id="q14b">
+                            <label for="q14b">B) 13</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q14" value="c" id="q14c">
+                            <label for="q14c">C) 12.7</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q14" value="d" id="q14d">
+                            <label for="q14d">D) 0</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp14">
+                        <strong>Answer: A) 12</strong><br>
+                        (int) casting truncates the decimal part. It doesn't round the number.
+                    </div>
+                </div>
+
+                <!-- Question 15 -->
+                <div class="question" id="q15">
+                    <span class="question-number">Question 15</span>
+                    <div class="question-text">
+                        <p>Which of the following is the correct way to create a comment in PHP?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q15" value="a" id="q15a">
+                            <label for="q15a">A) &lt;!-- comment --&gt;</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q15" value="b" id="q15b">
+                            <label for="q15b">B) // comment</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q15" value="c" id="q15c">
+                            <label for="q15c">C) ** comment **</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q15" value="d" id="q15d">
+                            <label for="q15d">D) All of the above</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp15">
+                        <strong>Answer: B) // comment</strong><br>
+                        PHP supports //, #, and /* */ for comments. <!-- --> is HTML comment, ** ** is not valid.
+                    </div>
+                </div>
+
+                <!-- Question 16 -->
+                <div class="question" id="q16">
+                    <span class="question-number">Question 16</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $a = "10 apples";<br>
+                        $b = 5;<br>
+                        echo $a + $b;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q16" value="a" id="q16a">
+                            <label for="q16a">A) 15</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q16" value="b" id="q16b">
+                            <label for="q16b">B) 105</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q16" value="c" id="q16c">
+                            <label for="q16c">C) "10 apples5"</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q16" value="d" id="q16d">
+                            <label for="q16d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp16">
+                        <strong>Answer: A) 15</strong><br>
+                        PHP extracts the leading number "10" from the string and adds it to 5, resulting in 15.
+                    </div>
+                </div>
+
+                <!-- Question 17 -->
+                <div class="question" id="17">
+                    <span class="question-number">Question 17</span>
+                    <div class="question-text">
+                        <p>What does the '.' operator do in PHP?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q17" value="a" id="q17a">
+                            <label for="q17a">A) Addition</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q17" value="b" id="q17b">
+                            <label for="q17b">B) Multiplication</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q17" value="c" id="q17c">
+                            <label for="q17c">C) Concatenation</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q17" value="d" id="q17d">
+                            <label for="q17d">D) Division</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp17">
+                        <strong>Answer: C) Concatenation</strong><br>
+                        The dot (.) operator joins two strings together.
+                    </div>
+                </div>
+
+                <!-- Question 18 -->
+                <div class="question" id="q18">
+                    <span class="question-number">Question 18</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        echo "5" . 2;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q18" value="a" id="q18a">
+                            <label for="q18a">A) 7</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q18" value="b" id="q18b">
+                            <label for="q18b">B) 52</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q18" value="c" id="q18c">
+                            <label for="q18c">C) 5.2</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q18" value="d" id="q18d">
+                            <label for="q18d">D) Error</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp18">
+                        <strong>Answer: B) 52</strong><br>
+                        The dot operator concatenates. "5" . 2 gives "52" (string concatenation).
+                    </div>
+                </div>
+
+                <!-- Question 19 -->
+                <div class="question" id="q19">
+                    <span class="question-number">Question 19</span>
+                    <div class="question-text">
+                        <p>Which magic constant returns the current line number?</p>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q19" value="a" id="q19a">
+                            <label for="q19a">A) __FILE__</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q19" value="b" id="q19b">
+                            <label for="q19b">B) __LINE__</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q19" value="c" id="q19c">
+                            <label for="q19c">C) __DIR__</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q19" value="d" id="q19d">
+                            <label for="q19d">D) __CLASS__</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp19">
+                        <strong>Answer: B) __LINE__</strong><br>
+                        __LINE__ returns the current line number in the file. __FILE__ returns the full file path.
+                    </div>
+                </div>
+
+                <!-- Question 20 -->
+                <div class="question" id="q20">
+                    <span class="question-number">Question 20</span>
+                    <div class="question-text">
+                        <p>What is the output?</p>
+                        <div class="code-block"><?php<br>
+                        $x = 7;<br>
+                        $x += $x++ + ++$x;<br>
+                        echo $x;<br>
+                        ?></div>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q20" value="a" id="q20a">
+                            <label for="q20a">A) 21</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q20" value="b" id="q20b">
+                            <label for="q20b">B) 22</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q20" value="c" id="q20c">
+                            <label for="q20c">C) 23</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q20" value="d" id="q20d">
+                            <label for="q20d">D) 25</label>
+                        </div>
+                    </div>
+                    <div class="explanation" id="exp20">
+                        <strong>Answer: D) 25</strong><br>
+                        Initially $x=7. $x++ returns 7, $x becomes 8. ++$x increments to 9, returns 9. Sum = 16. Then $x += 16 → 9 + 16 = 25.
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="submitQuiz()">Submit Test</button>
+                <button type="button" class="btn-reset" onclick="resetQuiz()">Reset Test</button>
+            </form>
+
+            <div class="result-container" id="resultContainer">
+                <h2>Test Results</h2>
+                <div class="score-circle" id="scoreCircle">0</div>
+                <div class="result-message" id="resultMessage"></div>
+                <button class="btn-reset" onclick="resetQuiz()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer functionality
+        let timeLeft = 900; // 15 minutes in seconds
+        const timerDisplay = document.getElementById('timer');
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 300) {
+                    timerDisplay.style.backgroundColor = '#dc3545';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        // Start timer when page loads
+        window.onload = startTimer;
+
+        // Quiz answers
+        const answers = {
+            q1: 'b',
+            q2: 'c',
+            q3: 'a',
+            q4: 'c',
+            q5: 'b',
+            q6: 'c',
+            q7: 'a',
+            q8: 'b',
+            q9: 'a',
+            q10: 'a',
+            q11: 'b',
+            q12: 'b',
+            q13: 'b',
+            q14: 'a',
+            q15: 'b',
+            q16: 'a',
+            q17: 'c',
+            q18: 'b',
+            q19: 'b',
+            q20: 'd'
+        };
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            
+            let score = 0;
+            const form = document.getElementById('quizForm');
+            
+            // Check each answer
+            for (let i = 1; i <= 20; i++) {
+                const questionName = 'q' + i;
+                const selectedAnswer = form.querySelector(`input[name="${questionName}"]:checked`);
+                const questionDiv = document.getElementById(questionName);
+                const explanationDiv = document.getElementById('exp' + i);
+                
+                if (selectedAnswer) {
+                    const selectedValue = selectedAnswer.value;
+                    const options = form.querySelectorAll(`input[name="${questionName}"]`);
+                    
+                    options.forEach(option => {
+                        const optionDiv = option.closest('.option');
+                        if (option.value === answers[questionName]) {
+                            optionDiv.classList.add('correct');
+                        }
+                        if (option.checked && option.value !== answers[questionName]) {
+                            optionDiv.classList.add('incorrect');
+                        }
+                    });
+                    
+                    if (selectedValue === answers[questionName]) {
+                        score++;
+                    }
+                } else {
+                    // Highlight unanswered questions
+                    questionDiv.style.borderColor = '#ffc107';
+                    // Show correct answer for unanswered
+                    const options = form.querySelectorAll(`input[name="${questionName}"]`);
+                    options.forEach(option => {
+                        const optionDiv = option.closest('.option');
+                        if (option.value === answers[questionName]) {
+                            optionDiv.classList.add('correct');
+                        }
+                    });
+                }
+                
+                // Show explanation
+                explanationDiv.classList.add('show');
+            }
+            
+            // Display results
+            const resultContainer = document.getElementById('resultContainer');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            resultContainer.style.display = 'block';
+            scoreCircle.textContent = score + '/20';
+            
+            let message = '';
+            if (score >= 18) {
+                message = '🏆 Excellent! You\'ve mastered PHP Basics & Syntax!';
+            } else if (score >= 15) {
+                message = '🎯 Good job! You have a strong understanding of PHP basics!';
+            } else if (score >= 12) {
+                message = '📚 Fair performance. Review the topics you missed and try again!';
+            } else {
+                message = '💪 Keep practicing! Review the PHP basics and come back stronger!';
+            }
+            
+            resultMessage.textContent = message;
+            
+            // Scroll to results
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            clearInterval(timerInterval);
+            timeLeft = 900;
+            
+            // Reset timer display
+            const timerDisplay = document.getElementById('timer');
+            timerDisplay.textContent = 'Time Remaining: 15:00';
+            timerDisplay.style.backgroundColor = '#ff6b6b';
+            
+            // Reset form
+            const form = document.getElementById('quizForm');
+            form.reset();
+            
+            // Remove all highlighting
+            const allOptions = form.querySelectorAll('.option');
+            allOptions.forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+            
+            // Hide all explanations
+            const allExplanations = document.querySelectorAll('.explanation');
+            allExplanations.forEach(exp => {
+                exp.classList.remove('show');
+            });
+            
+            // Remove question highlighting
+            const allQuestions = document.querySelectorAll('.question');
+            allQuestions.forEach(q => {
+                q.style.borderColor = '#e9ecef';
+            });
+            
+            // Hide results
+            document.getElementById('resultContainer').style.display = 'none';
+            
+            // Restart timer
+            startTimer();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
